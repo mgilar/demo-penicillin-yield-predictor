@@ -20,7 +20,6 @@ def load_model(model_path):
     """
     try:
         session = onnxruntime.InferenceSession(model_path, providers=['CPUExecutionProvider'])
-        st.success("✅ Model loaded successfully!")
         return session
     except FileNotFoundError:
         st.error(f"🔴 Model file not found at '{model_path}'. Please make sure the model is in the same directory as the app.")
@@ -51,6 +50,62 @@ st.set_page_config(layout="wide", page_title="Penicillin Yield Predictor", page_
 # --- Header ---
 st.title("💊 Penicillin Yield Predictor")
 st.markdown("An interactive demo to predict penicillin yield using a pre-trained ONNX model. Adjust the sliders and see the prediction change in real-time!")
+
+# Add Lasso model explanation
+with st.expander("🤖 About the Lasso Regression Model", expanded=False):
+    st.markdown("""
+    ### What is Lasso Regression? 🎯
+
+    **LASSO** (Least Absolute Shrinkage and Selection Operator) is a linear regression technique that performs both **prediction** and **feature selection** simultaneously.
+
+    **Key Characteristics:**
+    - **Linear Model**: Predicts yield as a weighted sum of input features
+    - **Feature Selection**: Automatically identifies the most important features
+    - **Regularization**: Prevents overfitting by penalizing complex models
+    - **Interpretable**: Easy to understand which features drive predictions
+
+    ---
+
+    ### How LASSO Works 🔧
+
+    The model minimizes this equation:
+    
+    **Loss = Mean Squared Error + λ × |coefficients|**
+
+    Where:
+    - **Mean Squared Error**: Measures prediction accuracy
+    - **λ (lambda)**: Controls regularization strength
+    - **|coefficients|**: Sum of absolute values of feature weights
+
+    **The Magic of L1 Regularization:**
+    - Forces some feature coefficients to exactly **zero**
+    - Automatically **removes irrelevant features** from the model
+    - Creates **sparse models** with only important predictors
+    - Balances **accuracy** vs **simplicity**
+
+    ---
+
+    ### Why LASSO for Penicillin Production? 🧬
+
+    **✅ Advantages in Bioprocessing:**
+
+    1. **Feature Selection**: Automatically identifies which process parameters truly matter
+    2. **Interpretability**: Clear understanding of parameter impacts
+    3. **Robustness**: Handles noisy sensor data well
+    4. **Efficiency**: Fast predictions suitable for real-time monitoring
+    5. **Prevents Overfitting**: Works well with limited training data
+
+    **🎯 Model Performance:**
+    - Trained on **1,439 fermentation samples**
+    - Selected **14 key temporal features** from larger feature set
+    - Optimized λ parameter through cross-validation
+    - Balances prediction accuracy with model simplicity
+
+    **📊 Feature Importance Discovery:**
+    The LASSO automatically discovered that **Offline Biomass** and **Carbon Evolution Rate** 
+    are the most predictive features, while substrate and chemical concentrations have minimal impact.
+    This aligns with biological understanding of fermentation processes!
+    """)
 
 # Add explanatory info box
 with st.expander("ℹ️ Understanding Temporal Features & Data Drift", expanded=False):
@@ -107,7 +162,7 @@ st.markdown("---")
 # --- Load Model and Display Details ---
 session = load_model(MODEL_PATH)
 if session:
-    get_model_details(session)
+    # Model details section removed for cleaner UI
 
     st.markdown("---")
 
@@ -135,8 +190,8 @@ if session:
                                     help="Low impact feature (corr: 0.06) - Nitrogen source tracking")
             biomass_0 = st.number_input("🔴 Offline Biomass (g/L) [0]", value=21.4870, format="%.4f",
                                         help="Highest impact feature (corr: 0.79) - Cell concentration measurement")
-            penicillin_0 = st.number_input("Offline Penicillin (g/L) [0]", value=14.5760, format="%.4f",
-                                           help="Historical yield measurement at time [0]")
+            # Hidden input - hardcoded value for Offline Penicillin [0]
+            penicillin_0 = 14.5760
             our_0 = st.number_input("🟢 Oxygen Uptake Rate (g/min) [0]", value=1.2645, format="%.4f",
                                     help="Low impact feature (corr: 0.21) - Respiration rate")
             paa_0 = st.number_input("🟢 PAA Concentration (g/L) [0]", value=1201.3000, format="%.4f",
@@ -151,8 +206,8 @@ if session:
                                     help="Low impact feature (corr: 0.06) - Nitrogen source tracking")
             biomass_1 = st.number_input("🔴 Offline Biomass (g/L) [1]", value=21.4870, format="%.4f",
                                         help="Highest impact feature (corr: 0.79) - Cell concentration measurement")
-            penicillin_1 = st.number_input("Offline Penicillin (g/L) [1]", value=14.5760, format="%.4f",
-                                           help="Historical yield measurement at time [1]")
+            # Hidden input - hardcoded value for Offline Penicillin [1]
+            penicillin_1 = 14.5760
             our_1 = st.number_input("🟢 Oxygen Uptake Rate (g/min) [1]", value=1.2645, format="%.4f",
                                     help="Low impact feature (corr: 0.21) - Respiration rate")
             paa_1 = st.number_input("🟢 PAA Concentration (g/L) [1]", value=1201.3000, format="%.4f",
@@ -160,14 +215,12 @@ if session:
             substrate_1 = st.number_input("🟢 Substrate Concentration (g/L) [1]", value=0.0016, format="%.4f",
                                           help="Low impact, extremely high drift (CV: 347%) - Nutrient level")
 
-        # The "Run Prediction" button is centered using columns
-        _, btn_col, _ = st.columns([1, 2, 1])
-        with btn_col:
-            predict_button = st.button("⚡ Predict Yield", use_container_width=True)
-
     with col2:
         st.header("📈 Prediction Output")
         st.write("The model's predicted yield will appear below.")
+        
+        # Predict button at the top of the output column
+        predict_button = st.button("⚡ Predict Yield", use_container_width=True)
 
         if predict_button:
             try:

@@ -131,8 +131,10 @@ with st.expander("ℹ️ Understanding Temporal Features & Data Drift", expanded
     - **Offline Biomass** (correlation: 0.79) - Most important feature
     - **Carbon Evolution Rate** (correlation: 0.72) - Second most important
 
+    **🟡 MEDIUM IMPACT Features** (Moderate predictors):
+    - **Oxygen Uptake Rate** (correlation: 0.21)
+
     **🟢 LOW IMPACT Features** (Weak predictors):
-    - Oxygen Uptake Rate (correlation: 0.21)
     - Substrate Concentration (correlation: 0.11)
     - NH3 Concentration (correlation: 0.06)
     - PAA Concentration (correlation: 0.04)
@@ -172,7 +174,26 @@ if session:
     with col1:
         st.header("⚙️ Input Features")
         st.write("Use the controls below to set the penicillin yield features.")
-        st.info("🔴 = High impact on prediction | 🟢 = Low impact on prediction")
+        st.info("🔴 = High impact | 🟡 = Medium impact | 🟢 = Low impact")
+
+        # Define default values
+        defaults = {
+            "cer_0": 1.4006, "nh3_0": 1786.3000, "biomass_0": 21.4870, 
+            "our_0": 1.2645, "paa_0": 1201.3000, "substrate_0": 0.0016,
+            "cer_1": 1.4006, "nh3_1": 1786.3000, "biomass_1": 21.4870, 
+            "our_1": 1.2645, "paa_1": 1201.3000, "substrate_1": 0.0016
+        }
+
+        # Initialize session state
+        for key, default_val in defaults.items():
+            if key not in st.session_state:
+                st.session_state[key] = default_val
+
+        # Reset button
+        if st.button("🔄 Reset to Default Values", use_container_width=True, key="reset_button"):
+            for key, value in defaults.items():
+                st.session_state[key] = value
+            st.rerun()
 
         # ==============================================================================
         # TODO: CUSTOMIZE YOUR INPUTS HERE
@@ -184,35 +205,35 @@ if session:
         input_col1, input_col2 = st.columns(2)
 
         with input_col1:
-            cer_0 = st.number_input("🔴 Carbon Evolution Rate (g/h) [0]", value=1.4006, format="%.4f",
+            cer_0 = st.number_input("🔴 Carbon Evolution Rate (g/h) [0]", format="%.4f", key="cer_0",
                                     help="High impact feature (corr: 0.72) - Monitors microbial metabolic activity")
-            nh3_0 = st.number_input("🟢 NH3 Concentration (g/L) [0]", value=1786.3000, format="%.4f",
+            nh3_0 = st.number_input("🟢 NH3 Concentration (g/L) [0]", format="%.4f", key="nh3_0",
                                     help="Low impact feature (corr: 0.06) - Nitrogen source tracking")
-            biomass_0 = st.number_input("🔴 Offline Biomass (g/L) [0]", value=21.4870, format="%.4f",
+            biomass_0 = st.number_input("🔴 Offline Biomass (g/L) [0]", format="%.4f", key="biomass_0",
                                         help="Highest impact feature (corr: 0.79) - Cell concentration measurement")
             # Hidden input - hardcoded value for Offline Penicillin [0]
             penicillin_0 = 14.5760
-            our_0 = st.number_input("🟢 Oxygen Uptake Rate (g/min) [0]", value=1.2645, format="%.4f",
-                                    help="Low impact feature (corr: 0.21) - Respiration rate")
-            paa_0 = st.number_input("🟢 PAA Concentration (g/L) [0]", value=1201.3000, format="%.4f",
+            our_0 = st.number_input("🟡 Oxygen Uptake Rate (g/min) [0]", format="%.4f", key="our_0",
+                                    help="Medium impact feature (corr: 0.21) - Respiration rate")
+            paa_0 = st.number_input("🟢 PAA Concentration (g/L) [0]", format="%.4f", key="paa_0",
                                     help="Low impact, high drift (CV: 83%) - Precursor compound")
-            substrate_0 = st.number_input("🟢 Substrate Concentration (g/L) [0]", value=0.0016, format="%.4f",
+            substrate_0 = st.number_input("🟢 Substrate Concentration (g/L) [0]", format="%.4f", key="substrate_0",
                                           help="Low impact, extremely high drift (CV: 347%) - Nutrient level")
 
         with input_col2:
-            cer_1 = st.number_input("🔴 Carbon Evolution Rate (g/h) [1]", value=1.4006, format="%.4f",
+            cer_1 = st.number_input("🔴 Carbon Evolution Rate (g/h) [1]", format="%.4f", key="cer_1",
                                     help="High impact feature (corr: 0.72) - Monitors microbial metabolic activity")
-            nh3_1 = st.number_input("🟢 NH3 Concentration (g/L) [1]", value=1786.3000, format="%.4f",
+            nh3_1 = st.number_input("🟢 NH3 Concentration (g/L) [1]", format="%.4f", key="nh3_1",
                                     help="Low impact feature (corr: 0.06) - Nitrogen source tracking")
-            biomass_1 = st.number_input("🔴 Offline Biomass (g/L) [1]", value=21.4870, format="%.4f",
+            biomass_1 = st.number_input("🔴 Offline Biomass (g/L) [1]", format="%.4f", key="biomass_1",
                                         help="Highest impact feature (corr: 0.79) - Cell concentration measurement")
             # Hidden input - hardcoded value for Offline Penicillin [1]
             penicillin_1 = 14.5760
-            our_1 = st.number_input("🟢 Oxygen Uptake Rate (g/min) [1]", value=1.2645, format="%.4f",
-                                    help="Low impact feature (corr: 0.21) - Respiration rate")
-            paa_1 = st.number_input("🟢 PAA Concentration (g/L) [1]", value=1201.3000, format="%.4f",
+            our_1 = st.number_input("🟡 Oxygen Uptake Rate (g/min) [1]", format="%.4f", key="our_1",
+                                    help="Medium impact feature (corr: 0.21) - Respiration rate")
+            paa_1 = st.number_input("🟢 PAA Concentration (g/L) [1]", format="%.4f", key="paa_1",
                                     help="Low impact, high drift (CV: 83%) - Precursor compound")
-            substrate_1 = st.number_input("🟢 Substrate Concentration (g/L) [1]", value=0.0016, format="%.4f",
+            substrate_1 = st.number_input("🟢 Substrate Concentration (g/L) [1]", format="%.4f", key="substrate_1",
                                           help="Low impact, extremely high drift (CV: 347%) - Nutrient level")
 
     with col2:

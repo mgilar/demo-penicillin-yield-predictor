@@ -47,6 +47,50 @@ def get_model_details(_session):
 
 st.set_page_config(layout="wide", page_title="Penicillin Yield Predictor", page_icon="💊")
 
+# --- Custom CSS for Presentation Mode ---
+st.markdown("""
+    <style>
+    /* Global font size increase */
+    html, body, [class*="css"]  {
+        font-size: 22px;
+    }
+    
+    /* Headers */
+    h1 { font-size: 4rem !important; }
+    h2 { font-size: 3rem !important; }
+    h3 { font-size: 2.5rem !important; }
+    
+    /* Text elements */
+    p { font-size: 1.4rem !important; }
+    
+    /* Widget labels */
+    .stNumberInput label p, .stSelectbox label p {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Input fields */
+    .stNumberInput input {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Buttons */
+    .stButton button {
+        font-size: 1.8rem !important;
+        padding: 0.5rem 1rem !important;
+    }
+    
+    /* Expander headers */
+    .streamlit-expanderHeader p {
+        font-size: 1.6rem !important;
+    }
+    
+    /* Alert boxes (info, success, error) */
+    .stAlert {
+        font-size: 1.4rem !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- Header ---
 st.title("💊 Penicillin Yield Predictor")
 st.markdown("An interactive demo to predict penicillin yield using a pre-trained ONNX model. Adjust the sliders and see the prediction change in real-time!")

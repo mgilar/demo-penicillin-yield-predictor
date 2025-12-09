@@ -365,8 +365,12 @@ with drift_col1:
             "Low Biomass Growth (-50%)",
             "High Carbon Evolution (+50%)",
             "Substrate Depletion (-90%)",
-            "PAA Drift (+100%)",
-            "Combined High-Impact Drift"
+            "Combined High-Impact Drift",
+            "Metabolic Stress (High CER, Low Biomass)",
+            "Metabolic Disconnect (High Biomass, Low CER)",
+            "Process Failure (Low Activity)",
+            "Sensor Failure (Substrate Spike)",
+            "Late Stage Fermentation"
         ]
     )
 
@@ -392,13 +396,29 @@ with drift_col1:
             "biomass_mult": 1.0, "cer_mult": 1.0, "substrate_mult": 0.1,
             "paa_mult": 1.0, "our_mult": 1.0, "nh3_mult": 1.0
         },
-        "PAA Drift (+100%)": {
-            "biomass_mult": 1.0, "cer_mult": 1.0, "substrate_mult": 1.0,
-            "paa_mult": 2.0, "our_mult": 1.0, "nh3_mult": 1.0
-        },
         "Combined High-Impact Drift": {
             "biomass_mult": 1.5, "cer_mult": 1.5, "substrate_mult": 1.0,
             "paa_mult": 1.0, "our_mult": 1.0, "nh3_mult": 1.0
+        },
+        "Metabolic Stress (High CER, Low Biomass)": {
+            "biomass_mult": 0.8, "cer_mult": 1.5, "substrate_mult": 1.0,
+            "paa_mult": 1.0, "our_mult": 1.0, "nh3_mult": 1.0
+        },
+        "Metabolic Disconnect (High Biomass, Low CER)": {
+            "biomass_mult": 1.5, "cer_mult": 0.5, "substrate_mult": 1.0,
+            "paa_mult": 1.0, "our_mult": 1.0, "nh3_mult": 1.0
+        },
+        "Process Failure (Low Activity)": {
+            "biomass_mult": 0.5, "cer_mult": 0.5, "substrate_mult": 1.0,
+            "paa_mult": 1.0, "our_mult": 0.5, "nh3_mult": 1.0
+        },
+        "Sensor Failure (Substrate Spike)": {
+            "biomass_mult": 1.0, "cer_mult": 1.0, "substrate_mult": 10.0,
+            "paa_mult": 1.0, "our_mult": 1.0, "nh3_mult": 1.0
+        },
+        "Late Stage Fermentation": {
+            "biomass_mult": 1.0, "cer_mult": 1.0, "substrate_mult": 0.1,
+            "paa_mult": 1.5, "our_mult": 0.8, "nh3_mult": 1.0
         }
     }
 
@@ -508,7 +528,17 @@ with drift_col2:
                 st.markdown("---")
                 st.markdown("**📝 Interpretation:**")
 
-                if "Biomass" in scenario or "Carbon" in scenario:
+                if "Metabolic Stress" in scenario:
+                    st.warning("⚠️ **Metabolic Stress**: High activity (CER) but low growth (Biomass) indicates inefficiency, leading to **lower yield**.")
+                elif "Metabolic Disconnect" in scenario:
+                    st.error("🚨 **Metabolic Disconnect**: High Biomass with Low CER is biologically inconsistent (cells exist but aren't breathing). This indicates a severe anomaly or sensor fault.")
+                elif "Process Failure" in scenario:
+                    st.error("🚨 **Process Failure**: A drop in all key metabolic indicators (Biomass, CER, OUR) causes a **drastic yield collapse**.")
+                elif "Sensor Failure" in scenario:
+                    st.info("ℹ️ **Sensor Failure**: A massive spike in a low-impact feature (Substrate) has **almost no effect** on the prediction, demonstrating model robustness.")
+                elif "Late Stage" in scenario:
+                    st.info("📉 **Late Stage**: Typical end-of-batch signs (low substrate, slowing respiration) result in a **moderate yield decrease**.")
+                elif "Biomass" in scenario or "Carbon" in scenario:
                     st.success("✅ Changes to **high-impact features** (Biomass, Carbon Evolution Rate) produce **significant** yield changes.")
                 elif "Substrate" in scenario or "PAA" in scenario:
                     st.info("ℹ️ Changes to **low-impact features** (Substrate, PAA) produce **minimal** yield changes, despite high variability.")
